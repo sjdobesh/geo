@@ -1,6 +1,6 @@
-#include "vec.h"
 #include <math.h>
 
+#include "vec.h"
 #include "geo.h"
 
 // line functions
@@ -34,9 +34,9 @@ quad new_quad(v2 p1, v2 p2, v2 p3, v2 p4) {
 quad aaquad_to_quad(aaquad aaq) {
   quad q = {
     aaq.tl,
-    newv2(aaq.tl.x + aaq.br.x, aaq.tl.y),
+    new_v2(aaq.tl.x + aaq.br.x, aaq.tl.y),
     aaq.br,
-    newv2(aaq.br.x - aaq.tl.x, aaq.br.y)
+    new_v2(aaq.br.x - aaq.tl.x, aaq.br.y)
   };
   return q;
 }
@@ -93,4 +93,8 @@ float distance4(v4 p1, v4 p2){
            pow(p2.z - p1.z, 2) +
            pow(p2.w - p1.w, 2)
          );
+}
+
+int main() {
+  line l = new_line(new_v2(1.0, 2.0), new_v2(3.0, 4.0));
 }

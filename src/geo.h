@@ -39,7 +39,11 @@ circle new_circle(v2 pos, float rad);
 
 tri* quad_to_tri(quad q, tri* t1, tri* t2);
 
-#define distance(v1, v2) _Generic ((v1), v2: distancev2, v3: distancev3, v4: distancev4) (v1, v2)
 float distance2(v2 p1, v2 p2);
 float distance3(v3 p1, v3 p2);
 float distance4(v4 p1, v4 p2);
+#define distance(a, b) _Generic ((a), \
+  v2: distance2, \
+  v3: distance3, \
+  v4: distance4  \
+) (a, b)
