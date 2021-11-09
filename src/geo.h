@@ -50,6 +50,9 @@ int linexline(line a, line b, v2* x);
 
 // geometry functions
 void get_line_fn(line l, float* a, float* b, float* c);
+float length(line);
+float circle_area(circle c);
+float circle_perimeter(circle c);
 float distance2(v2 p1, v2 p2);
 float distance3(v3 p1, v3 p2);
 float distance4(v4 p1, v4 p2);
@@ -59,3 +62,19 @@ float distance4(v4 p1, v4 p2);
   v4: distance4  \
 ) (a, b)
 
+// utility functions
+// print geometry
+#define printg(x) _Generic ((x), \
+  line:   print_line,   \
+  ray:    print_ray,    \
+  quad:   print_quad,   \
+  aaquad: print_aaquad, \
+  tri:    print_tri,    \
+  circle: print_circle  \
+) (x)
+void print_line(line l);
+void print_ray(ray r);
+void print_quad(quad q);
+void print_aaquad(aaquad aaq);
+void print_tri(tri t);
+void print_circle(circle c);

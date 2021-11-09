@@ -53,7 +53,7 @@ tri new_tri(v2 p1, v2 p2, v2 p3) {
   return t;
 }
 float triangle_area(tri t) {
-  return abs(
+  return fabs(
            (t.p2.x * t.p1.y - t.p1.x * t.p2.y) +
            (t.p3.x * t.p2.y - t.p2.x * t.p3.y) +
            (t.p1.x * t.p3.y - t.p3.x * t.p1.y)
@@ -95,6 +95,77 @@ float distance4(v4 p1, v4 p2){
          );
 }
 
+// print functions
+void print_line(line l) {
+  printf("line [\n");
+  printf("  "); printv(l.p1);
+  printf("  "); printv(l.p2);
+  printf("]\n");
+}
+void print_ray(ray r) {
+  printf("ray [\n");
+  printf("  "); printv(r.pos);
+  printf("  "); printv(r.vec);
+  printf("]\n");
+}
+void print_quad(quad q) {
+  printf("quad [\n");
+  printf("  "); printv(q.p1);
+  printf("  "); printv(q.p2);
+  printf("  "); printv(q.p3);
+  printf("  "); printv(q.p4);
+  printf("]\n");
+}
+void print_aaquad(aaquad aaq) {
+  printf("aa-quad [\n");
+  printf("  "); printv(aaq.tl);
+  printf("  "); printv(aaq.br);
+  printf("]\n");
+}
+void print_tri(tri t) {
+  printf("triangle [\n");
+  printf("  "); printv(t.p1);
+  printf("  "); printv(t.p2);
+  printf("  "); printv(t.p3);
+  printf("]\n");
+}
+void print_circle(circle c) {
+  printf("circle [\n");
+  printf("  "); printv(c.pos);
+  printf("  "); printf("radius = %.2f\n", c.rad);
+  printf("]\n");
+}
+
 int main() {
-  line l = new_line(new_v2(1.0, 2.0), new_v2(3.0, 4.0));
+  line l = new_line(
+    new_v2(1.0, 2.0),
+    new_v2(3.0, 4.0)
+  );
+  ray r = new_ray(
+    new_v2(1.0, 2.0),
+    new_v2(3.0, 4.0)
+  );
+  quad q = new_quad(
+    new_v2(0.0, 0.0),
+    new_v2(1.0, 0.0),
+    new_v2(1.0, 1.0),
+    new_v2(0.0, 1.0)
+  );
+  aaquad aaq = new_aaquad(
+    new_v2(0.0, 0.0),
+    new_v2(1.0, 1.0)
+  );
+  tri t = new_tri(
+    new_v2(0.0, 0.0),
+    new_v2(1.0, 1.0),
+    new_v2(2.0, 0.0)
+  );
+  circle c = new_circle(new_v2(0.0, 0.0), 1.0);
+  // print everything
+  printg(l);
+  printg(r);
+  printg(q);
+  printg(aaq);
+  printg(t);
+  printg(c);
 }

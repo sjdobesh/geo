@@ -89,6 +89,9 @@ int linexline(line a, line b, v2* x);
 
 ### _Utility_
 ```c
-void get_line_fn(line l, float* a, float* b, float* c);
+float length(line);
+float circle_area(circle c);
+float circle_perimeter(circle c);
 float distance(vX p1, vX p2);
+void get_line_fn(line l, float* a, float* b, float* c);
 ```
