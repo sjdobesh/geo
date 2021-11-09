@@ -20,27 +20,28 @@ make
 ## Structures
 
 ```c
-// line - 2 points
+### _Line_
 struct line {
   v2 p1, p2;
 };
-// ray - poition, vector
+### _Ray_
 struct ray {
   v2 pos, vec;
 };
-// quad - 4 points
+### _Quad_
 struct quad {
   v2 p1, p2, p3, p4;
 };
-// axis aligned quad - 2 points, top left, bottom right
+### _Axis Aligned Quad_
 struct aaquad {
   v2 tl, br;
 };
 // triangle - 3 points
+### _Triangle_
 struct tri {
   v2 p1, p2, p3;
 };
-// cirlce - position, radius
+### _Circle_
 struct circle {
   v2 pos;
   float rad;
