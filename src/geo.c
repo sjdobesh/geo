@@ -31,6 +31,21 @@ quad new_quad(v2 p1, v2 p2, v2 p3, v2 p4) {
   quad q = {p1, p2, p3, p4};
   return q;
 }
+
+float quad_area(quad q) {
+  return 0.5 * ((
+    q.p1.x * q.p2.y +
+    q.p2.x * q.p3.y +
+    q.p3.x * q.p4.y +
+    q.p4.x * q.p1.y
+  ) - (
+    q.p2.x * q.p1.y +
+    q.p3.x * q.p2.y +
+    q.p4.x * q.p3.y +
+    q.p1.x * q.p4.y
+  ));
+}
+
 quad aaquad_to_quad(aaquad aaq) {
   quad q = {
     aaq.tl,
@@ -45,6 +60,10 @@ quad aaquad_to_quad(aaquad aaq) {
 aaquad new_aaquad(v2 tl, v2 br) {
   aaquad aaq = {tl, br};
   return aaq;
+}
+
+float aaquad_area(aaquad aaq) {
+  return quad_area(aaquad_to_quad(aaq));
 }
 
 // triangle functions
