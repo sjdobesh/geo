@@ -89,6 +89,7 @@ int linexline(line a, line b, v2* x);
 
 ### _Utility_
 ```c
+void printg(line | ray | quad | aaquad | tri | circle);
 float length(line);
 float circle_area(circle c);
 float circle_perimeter(circle c);
