@@ -43,7 +43,6 @@ struct aaquad {
   v2 tl, br;
 };
 ```
-// triangle - 3 points
 ### _Triangle_
 ```c
 struct tri {
@@ -72,7 +71,11 @@ circle new_circle(v2 pos, float rad);
 ```
 
 ### _Conversions_
+```c
 tri* quad_to_tri(quad q, tri* t1, tri* t2);
+```
 
 ### _Utility_
+```c
 float distance(vX p1, vX p2);
+```
