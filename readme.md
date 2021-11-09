@@ -56,7 +56,6 @@ struct circle {
   float rad;
 };
 ```
-```
 
 ## Functions
 
