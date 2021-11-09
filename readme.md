@@ -71,10 +71,24 @@ circle new_circle(v2 pos, float rad);
 
 ### _Conversions_
 ```c
-tri* quad_to_tri(quad q, tri* t1, tri* t2);
+void quad_to_tri(quad q, tri* t1, tri* t2);
+line ray_to_line(ray r);
+quad aaquad_to_quad(aaquad aaq);
+```
+
+### _Intersections_
+```c
+int quadxquad(quad a, quad b);
+int pointxquad(v2 p, quad q);
+int rayxquad(ray r, quad q, v2* contact, v2* normal, float* hit);
+int aaquadxaaquad(aaquad a, aaquad b);
+int pointxaaquad(v2 p, aaquad q);
+int rayxaaquad(ray r, aaquad q, v2* contact, v2* normal, float* hit);
+int linexline(line a, line b, v2* x);
 ```
 
 ### _Utility_
 ```c
+void get_line_fn(line l, float* a, float* b, float* c);
 float distance(vX p1, vX p2);
 ```
