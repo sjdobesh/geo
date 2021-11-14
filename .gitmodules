@@ -1,0 +1,3 @@
+[submodule "src/vec"]
+	path = src/vec
+	url = git@github.com:sjdobesh/vec.git

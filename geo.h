@@ -1,3 +1,6 @@
+#ifndef _GEO_H_
+#define _GEO_H_
+
 #include "vec.h"
 
 // GEOMETRIC STRUCTS //---------------------------------------------------------
@@ -83,12 +86,12 @@ void print_tri(tri t);
 void print_circle(circle c);
 
 
+
 /* beginning implementation code */
 
 #include <math.h>
 
 #include "vec.h"
-#include "geo.h"
 
 // line functions
 line new_line(v2 p1, v2 p2) {

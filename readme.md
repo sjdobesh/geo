@@ -40,7 +40,7 @@ struct quad {
 ### _Axis Aligned Quad_
 ```c
 struct aaquad {
-  v2 tl, br;
+  v2 pos, dim;
 };
 ```
 ### _Triangle_
@@ -78,12 +78,9 @@ quad aaquad_to_quad(aaquad aaq);
 
 ### _Intersections_
 ```c
-int quadxquad(quad a, quad b);
-int pointxquad(v2 p, quad q);
-int rayxquad(ray r, quad q, v2* contact, v2* normal, float* hit);
-int aaquadxaaquad(aaquad a, aaquad b);
-int pointxaaquad(v2 p, aaquad q);
-int rayxaaquad(ray r, aaquad q, v2* contact, v2* normal, float* hit);
+int quadx(quad | aaquad, quad | aaquad);
+int pointxq(v2, quad | aaquad);
+int rayxq(ray r, quad q, v2* contact, v2* normal, float* hit);
 int linexline(line a, line b, v2* x);
 ```
 
