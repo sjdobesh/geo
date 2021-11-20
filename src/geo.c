@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdarg.h>
 
 #include "geo.h"
 
@@ -142,39 +143,157 @@ float distance4(v4 p1, v4 p2){
   );
 }
 
-// intersect functions
+// slope (m) = (b.y - a.y)/(b.x - a.x)
+float slopef(float x1, float y1, float x2, float y2) {
+  return (y2 - y1) / (x2 - x1);
+}
+float slopev(v2 a, v2 b) {
+  return slopef(a.x, a.y, b.x, b.y);
+}
+func line_to_func(line l) {
+  float m = slope(l.p1, l.p2);
+  float b = l.p1.y - (m * l.p1.x);
+  func f = { m, b };
+  return f;
+}
 
-// quadxquad macro
-// each of these converts all args to quads and feeds
-// them to the seperate axis theorem solver
-int qxq(quad a, quad b) {
-  polygon p1 = convert_to_poly(a);
-  polygon p2 = convert_to_poly(b);
-  int intersect = sat(p1, p2);
-  free_polygon(p1);
-  free_polygon(p2);
-  return 0;
+v2 solve_linear_system_l(line a, line b) {
+  return solve_linear_system_f(line_to_func(a), line_to_func(b));
 }
-int qxaaq(quad a, aaquad b) {
-  return qxq(a, aaquad_to_quad(b));
+
+// solve system of two linear equations
+v2 solve_linear_system_f(func a, func b) {
+  float x = (a.b - b.b) / (b.m - a.m);
+  float y = (a.m * x) + a.b;
+  v2 soln = {x, y};
+  return soln;
 }
-int aaqxq(aaquad a, quad b) {
-  return qxq(aaquad_to_quad(a), b);
+
+// create a line perpendicular to l
+line perpendicular(line l) {
+  // convert p to ray for easier rotation
+  ray r = line_to_ray(l); // now p1 is origin, p2 is vector
+  r = new_ray(
+    r.pos,                    // origin stays in place
+    new_v2(-r.vec.y, r.vec.x) // rotate the vector 90 around the origin
+  );
+  // back to line
+  return ray_to_line(r);
 }
-int aaqxaaq(aaquad a, aaquad b) {
-  return qxq(aaquad_to_quad(a), aaquad_to_quad(b));
-}
-int sat(polygon a, polygon b) {
-  v2* a_normals = malloc(a.sides * sizeof(v2));
-  v2* b_normals = malloc(b.sides * sizeof(v2));
-  for (int i = 0; i < a.sides; i++) {
-    // calc a normal
-    a_normals[i] = new_v2(-a.points[i].y, a.points[i].x);
-    // check for seperating axis
+
+void gen_sides(polygon p, line** sides) {
+  for (int i = 0; i < p.sides; i++) {
+    line side = {
+      p.points[i],
+      p.points[i == p.sides ? 0 : i+1] // if we are the end, wrap around
+    };
+    *sides[i] = side;
   }
-  for (int i = 0; i < b.sides; i++)
-    b_normals[i] = new_v2(-b.points[i].y, b.points[i].x);
+}
+
+// project a point p onto line l using proj function slope
+v2 project_point(v2 p, func proj, func line) {
+  // adjust b for this point
+  proj.b = p.y - (proj.m * p.x);
+  return solve_linear_system_f(proj, line);
+}
+
+void min_max_projection(polygon poly, func side, func norm, v2* min, v2* max) {
+  // for each point
+  v2* projected = malloc(sizeof(v2) * poly.sides);
+  for (int j = 0; j < poly.sides; j++) {
+    // create a new function with the sides slope through p
+    v2 p = poly.points[j];
+    // slope
+    float m = side.m;
+    // solve for b -- y = mx + b ; b = y - mx
+    float b = p.y - (m * p.x);
+    func projection = {m, b};
+    // solve for the intersection of the two functions and collect it
+    projected[j] = solve_linear_system_f(projection, norm);
+  }
+  // find min and max vals -- evaluation is always by x then y
+  v2 min_v, max_v;
+  min_v = max_v = projected[0]; // set first vals
+  for (int j = 1; j < poly.sides; j++) {
+    if (min_v.x > projected[j].x || min_v.y > projected[j].y) {
+      min_v = projected[j];
+    }
+    if (max_v.x > projected[j].x || max_v.y > projected[j].y) {
+      max_v = projected[j];
+    }
+  }
+  // free our projection list
+  free(projected);
+  // send back via ptr
+  *min = min_v;
+  *max = max_v;
+}
+
+int projection_overlap(polygon a, polygon b,
+                       func* a_side_funcs, func* a_normal_funcs,
+                       func* b_side_funcs, func* b_normal_funcs) {
+  for (int i = 0; i < a.sides; i++) {
+    // project all the points and find min and max
+    func a_side = a_side_funcs[i];
+    func a_norm = a_normal_funcs[i];
+    func b_side = b_side_funcs[i];
+    func b_norm = b_normal_funcs[i];
+    v2 a_min, a_max, b_min, b_max;
+    min_max_projection(a, a_side, a_norm, &a_min, &a_max);
+    min_max_projection(b, b_side, b_norm, &b_min, &b_max);
+    // check for overlap
+    if ((a_min.x < b_max.x && a_min.x > b_min.x) ||
+        (a_min.y < b_max.y && a_min.y > b_min.y) ||
+        (b_min.x < a_max.x && b_min.x > a_min.x) ||
+        (b_min.y < a_max.y && b_min.y > a_min.y)) {
+      return 1; // INTERSECTION DETECTED
+    }
+  }
   return 0;
+}
+
+int sat(polygon a, polygon b) {
+  printf("Called SAT\n");
+  // calc normals
+  line* a_sides = malloc(a.sides * sizeof(line));
+  line* b_sides = malloc(b.sides * sizeof(line));
+  gen_sides(a, &a_sides);
+  gen_sides(b, &b_sides);
+  // convert to functions
+  func* a_side_funcs   = malloc(a.sides * sizeof(func));
+  func* b_side_funcs   = malloc(b.sides * sizeof(func));
+  func* a_normal_funcs = malloc(a.sides * sizeof(func));
+  func* b_normal_funcs = malloc(b.sides * sizeof(func));
+  // make functions for sides and normals
+  for (int i = 0; i < a.sides; i++) {
+    a_side_funcs[i]   = line_to_func(a_sides[i]);
+    a_normal_funcs[i] = line_to_func(perpendicular(a_sides[i]));
+  }
+  for (int i = 0; i < b.sides; i++) {
+    b_side_funcs[i]   = line_to_func(b_sides[i]);
+    b_normal_funcs[i] = line_to_func(perpendicular(b_sides[i]));
+  }
+  // check each normal of a
+  int collision = projection_overlap(
+    a, b,
+    a_side_funcs, a_normal_funcs,
+    b_side_funcs, b_normal_funcs
+  );
+  // check each normal of b (if it wasnt already an intersection)
+  collision = collision == 1 ? 1 : projection_overlap(
+    b, a,
+    b_side_funcs, b_normal_funcs,
+    a_side_funcs, a_normal_funcs
+  );
+  // free mallocd arrays -- function must hit these before returning
+  free(a_side_funcs);
+  free(b_side_funcs);
+  free(a_normal_funcs);
+  free(b_normal_funcs);
+  free(a_sides);
+  free(b_sides);
+  return collision;
 }
 
 int pxquad(v2 p, quad q) {
@@ -276,6 +395,7 @@ int main() {
   printg(t);
   printg(c);
   // conversion functions
+  printf("Conversion functions...\n");
   printf("Converting axis aligned quad to quad...\n");
   printg(aaq);
   printg(aaquad_to_quad(aaq));
@@ -289,4 +409,6 @@ int main() {
   printg(c);
   printf("area:%.2f\n", circle_area(c));
   printf("perimeter:%.2f\n", circle_perimeter(c));
+  // intersect functions
+  printf("Intersect functions...\n");
 }

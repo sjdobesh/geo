@@ -35,6 +35,10 @@ typedef struct polygon {
   int sides;
 } polygon;
 
+typedef struct func {
+  float m, b;
+} func;
+
 // FUNCTIONS //-----------------------------------------------------------------
 
 // initalization functions
@@ -60,27 +64,36 @@ polygon aaquadtopoly(aaquad aaq);
 polygon tritopoly(tri t);
 
 // intersect functions
-// quad intersections
-#define quad_x(b) _Generic ((b), \
-  quad: qxq, \
-  aaquad: qxaaq \
-)
-#define aaquad_x(b) _Generic ((b), \
-  quad: aaqxq \
-  aaquad: aaqxaaq \
-)
-#define quadxquad(a, b) _Generic((a), \
-  quad: quad_x(b), \
-  aaquad: aaquad_x(b) \
+// everything but lines is converted to polygons and solved with sat
+
+float slopef(float x1, float y1, float x2, float y2);
+float slopev(v2 a, v2 b);
+#define slope(a, ...) _Generic ((a), \
+  float : slopef, \
+  v2:     slopev  \
+) (a, __VA_ARGS__)
+
+v2 solve_linear_system_l(line a, line b);
+v2 solve_linear_system_f(func a, func b);
+v2 intersect_linear_func(func a, func b);
+#define intersect_poly(a, b) \
+  polygon p1 = convert_to_poly(a); \
+  polygon p2 = convert_to_poly(b); \
+  int intersect = sat(p1, p2);     \
+  free_polygon(p1);                \
+  free_polygon(p2);                \
+  return intersect;
+
+#define intersect(a, b) _Generic ((a), \
+  line: solve_linear_system_l,  \
+  func: solve_linear_system_f,  \
+  default: intersect_poly \
 ) (a, b)
-int qxq(quad a, quad b);
-int qxaaq(quad a, aaquad b);
-int aaqxq(aaquad a, quad b);
-int aaqxaaq(aaquad a, aaquad b);
+
 int sat(polygon a, polygon b);
 
 // point intersect quad
-#define pointxquad(a, b) _Generic((a), \
+#define point_intersect(a, b) _Generic((a), \
   quad: pxquad, \
   aaquad: pxaaquad\
 ) (a, b)
@@ -107,6 +120,16 @@ float aaquad_area(aaquad aaq);
 float triangle_area(tri t);
 float circle_area(circle c);
 float circle_perimeter(circle c);
+// solve line func
+float solve_l(line l, ...);
+float solve_v2(v2 a, ...);
+float solve_f(float x1, ...);
+#define solve(p, ...) _Generic ((p), \
+  line : solve_l, \
+  v2:    solve_v2,\
+  float: solve_f  \
+)(p, __VA_ARGS__)
+
 // distance
 float distance2(v2 p1, v2 p2);
 float distance3(v3 p1, v3 p2);
