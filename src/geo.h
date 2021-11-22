@@ -73,9 +73,9 @@ float slopev(v2 a, v2 b);
   v2:     slopev  \
 ) (a, __VA_ARGS__)
 
-v2 solve_linear_system_l(line a, line b);
-v2 solve_linear_system_f(func a, func b);
-v2 intersect_linear_func(func a, func b);
+int linexline(line a, line b, v2* x);
+int solve_linear_system_l(line a, line b, v2* v);
+int solve_linear_system_f(func a, func b, v2* v);
 #define intersect_poly(a, b) \
   polygon p1 = convert_to_poly(a); \
   polygon p2 = convert_to_poly(b); \
@@ -108,7 +108,6 @@ int pxaaquad(v2 p, aaquad q);
 int rxquad(ray r, quad q, v2* contact, v2* normal, float* hit);
 int rxaaquad(ray r, quad q, v2* contact, v2* normal, float* hit);
 
-int linexline(line a, line b, v2* x);
 
 // geometry functions
 // lines

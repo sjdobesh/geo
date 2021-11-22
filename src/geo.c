@@ -157,16 +157,25 @@ func line_to_func(line l) {
   return f;
 }
 
-v2 solve_linear_system_l(line a, line b) {
-  return solve_linear_system_f(line_to_func(a), line_to_func(b));
+// same dif just aliased
+int solve_linear_system_l(line a, line b, v2* v) {
+  return solve_linear_system_f(line_to_func(a), line_to_func(b), v);
+}
+int linexline(line a, line b, v2* v) {
+  return solve_linear_system_f(line_to_func(a), line_to_func(b), v);
 }
 
 // solve system of two linear equations
-v2 solve_linear_system_f(func a, func b) {
+int solve_linear_system_f(func a, func b, v2* v) {
+  // parallel lines
+  if (b.m == a.m) {
+    return 0;
+  }
   float x = (a.b - b.b) / (b.m - a.m);
   float y = (a.m * x) + a.b;
   v2 soln = {x, y};
-  return soln;
+  *v = soln;
+  return 1;
 }
 
 // create a line perpendicular to l
@@ -294,6 +303,10 @@ int sat(polygon a, polygon b) {
   free(a_sides);
   free(b_sides);
   return collision;
+}
+
+int pxpoly(v2 point, polygon poly) {
+  return 0;
 }
 
 int pxquad(v2 p, quad q) {
