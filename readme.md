@@ -72,7 +72,7 @@ struct circle {
 ### _Polygon_
 A polygon is an arbitrarily sized list of points It contains a side count which equals the point count.
 ```c
-struct polygon {
+struct poly {
   int sides;
   v2* points;
 };
@@ -95,17 +95,18 @@ quad    new_quad(v2 p1, v2 p2, v2 p3, v2 p4);
 aaquad  new_aaquad(v2 tl, v2 br);
 tri     new_tri(v2 p1, v2 p2, v2 p3);
 circle  new_circle(v2 pos, float rad);
-polygon new_polygon(int sides);
-void    free_polygon(polygon p); // polygon must be freed
+poly    new_poly(int sides);
+void    free_poly(poly p); // polygon must be freed
 ```
 
 ### _Conversions_
 ```c
-void quad_to_tri(quad q, tri* t1, tri* t2);
 line ray_to_line(ray r);
 ray line_to_ray(line l);
-polygon to_polygon(quad | aaquad | tri);
+poly to_poly(v2 | line | ray | triangle | quad | aaquad | circle);
+func to_func()
 quad aaquad_to_quad(aaquad aaq);
+void quad_to_tri(quad q, tri* t1, tri* t2);
 ```
 
 ### _Intersections_
@@ -113,11 +114,12 @@ quad aaquad_to_quad(aaquad aaq);
 #### _Intersect_
 Find the intersection between two objects. Intersection returned via ptr.
 Geo is not a struct, but represents that the function accepts any geometric primative we've defined.
+Returns a 0 or 1 for intersection, if the intersection is detected the ptr gets set.
 ```c
 int intersect(geo a, geo b, v2* x); 
 ```
 #### _Hit_
-A special intersection for rays that not only calcs the intersection, but also the contact normal.
+A special type of intersection for rays that not only calcs the intersection, but also the contact normal.
 ```c
 int hit(ray r, quad q, v2* contact, v2* normal, float* hit);
 ```
@@ -127,7 +129,6 @@ int hit(ray r, quad q, v2* contact, v2* normal, float* hit);
 void printg(geo g);
 float area(geo g);
 float perimeter(geo g);
-float length(line);
+float length(line | ray);
 float distance(vX p1, vX p2);
-void get_line_fn(line l, float* a, float* b, float* c);
 ```
